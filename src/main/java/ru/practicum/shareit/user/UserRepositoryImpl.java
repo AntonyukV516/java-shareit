@@ -24,35 +24,34 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User addUser(User user) {
-        if (user != null) {
-            if (user.getEmail() != null) {
-                if (!isEmailExist(user.getEmail())) {
-                    user.setId(createId());
-                    users.put(user.getId(), user);
-                    log.info("Пользователь {} добавлен", user);
-                    return user;
-                } else throw new RuntimeException("Email уже существует");
-            } else throw new RuntimeException("Email не передан");
-        } else throw new RuntimeException("не передан пользователь");
+        if (isEmailExist(user.getEmail())) {
+            throw new RuntimeException("Email уже существует");
+        }
+        user.setId(createId());
+        users.put(user.getId(), user);
+        log.info("Пользователь {} добавлен", user);
+        return user;
     }
 
     @Override
     public User deleteUser(Long id) {
         User user = users.get(id);
-        if (user != null) {
-            users.remove(id);
-            log.info("Пользователь {} удален", user);
-            return user;
-        } else throw new EntityNotFoundException("не найден пользователь");
+        if (user == null) {
+            throw new EntityNotFoundException("не найден пользователь");
+        }
+        users.remove(id);
+        log.info("Пользователь {} удален", user);
+        return user;
     }
 
     @Override
     public User getUserById(Long id) {
         User user = users.get(id);
-        if (user != null) {
-            log.info("Пользователь {} найден", user);
-            return user;
-        } else throw new EntityNotFoundException("пользователь с id=" + id + " не найден");
+        if (user == null) {
+            throw new EntityNotFoundException("пользователь с id=" + id + " не найден");
+        }
+        log.info("Пользователь {} найден", user);
+        return user;
     }
 
     @Override
@@ -63,7 +62,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User updateUser(Long id, User updatedUser) {
         User user = users.get(id);
-        if (user == null || updatedUser == null) {
+        if (user == null) {
             throw new EntityNotFoundException("Пользователь не найден");
         }
         if (updatedUser.getEmail() != null && !updatedUser.getEmail().equals(user.getEmail())) {

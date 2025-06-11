@@ -33,16 +33,15 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Item addItem(Item item, Long userId) {
-        if (item != null) {
-            User owner = userRepository.getUserById(userId);
-            if (owner != null) {
-                item.setId(createId());
-                item.setOwner(owner);
-                items.put(item.getId(), item);
-                log.info("Предмет {} добавлен", item);
-                return item;
-            } else throw new EntityNotFoundException("Сначала добавьте пользователя");
-        } else throw new RuntimeException("Не передан предмет");
+        User owner = userRepository.getUserById(userId);
+        if (owner == null) {
+            throw new EntityNotFoundException("Сначала добавьте пользователя");
+        }
+        item.setId(createId());
+        item.setOwner(owner);
+        items.put(item.getId(), item);
+        log.info("Предмет {} добавлен", item);
+        return item;
     }
 
     @Override
@@ -61,10 +60,6 @@ public class ItemRepositoryImpl implements ItemRepository {
             throw new RuntimeException("Редактировать может только владелец");
         }
 
-        if (updatedItem == null) {
-            throw new IllegalArgumentException("Не передан предмет для обновления");
-        }
-
         if (updatedItem.getName() != null) {
             item.setName(updatedItem.getName());
         }
@@ -80,20 +75,22 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public Item getItemById(Long itemId) {
         Item item = items.get(itemId);
-        if (item != null) {
-            return item;
-        } else throw new EntityNotFoundException("Не найден предмет");
+        if (item == null) {
+            throw new EntityNotFoundException("Не найден предмет");
+        }
+        return item;
     }
 
     @Override
     public List<Item> getOwnerItems(long userId) {
         User user = userRepository.getUserById(userId);
-        if (user != null) {
-            return items.values()
-                    .stream()
-                    .filter(i -> i.getOwner().equals(user))
-                    .toList();
-        } else throw new EntityNotFoundException("Пользователь не найден");
+        if (user == null) {
+            throw new EntityNotFoundException("Пользователь не найден");
+        }
+        return items.values()
+                .stream()
+                .filter(i -> i.getOwner().equals(user))
+                .toList();
     }
 
     @Override
