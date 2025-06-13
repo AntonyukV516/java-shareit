@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exeption.EntityNotFoundException;
-import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
@@ -45,7 +44,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public Item updateItem(ItemUpdateDto updatedItem, Long userId, Long itemId) {
+    public Item updateItem(Item updatedItem, Long userId, Long itemId) {
         Item item = items.get(itemId);
         if (item == null) {
             throw new EntityNotFoundException("Предмет с id=" + itemId + " не найден");

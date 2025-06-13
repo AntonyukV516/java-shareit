@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.dto.UserUpdateDto;
 
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class UserService {
                 .toList();
     }
 
-    public UserDto updateUser(Long id, UserDto updatedUser) {
+    public UserDto updateUser(Long id, UserUpdateDto updatedUser) {
         return UserMapper.toUserDto(userRepository.updateUser(id, UserMapper.toUser(updatedUser)));
     }
 }

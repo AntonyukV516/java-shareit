@@ -10,4 +10,8 @@ public class UserMapper {
     public static User toUser(UserDto userDto) {
         return new User(null, userDto.getName(), userDto.getEmail());
     }
+
+    public static User toUser(UserUpdateDto userUpdateDto) {
+        return new User(null, userUpdateDto.getName(), userUpdateDto.getEmail());
+    }
 }

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserUpdateDto;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public UserDto updateUser(@PathVariable Long id, @RequestBody @Valid @NotNull UserDto updatedUser) {
+    public UserDto updateUser(@PathVariable Long id, @RequestBody @Valid @NotNull UserUpdateDto updatedUser) {
         return userService.updateUser(id, updatedUser);
     }
 }

@@ -22,7 +22,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(ItemUpdateDto updatedItem, Long userId, Long itemId) {
-        return ItemMapper.toItemDto(itemRepository.updateItem(updatedItem, userId, itemId));
+        return ItemMapper.toItemDto(itemRepository.updateItem(ItemMapper.toItem(updatedItem), userId, itemId));
     }
 
     @Override
