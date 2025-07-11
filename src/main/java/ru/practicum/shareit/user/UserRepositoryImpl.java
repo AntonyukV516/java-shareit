@@ -14,7 +14,7 @@ import java.util.Map;
 @Repository
 @Slf4j
 @Data
-public class UserRepositoryImpl implements UserRepository {
+public class UserRepositoryImpl {
     private Map<Long, User> users = new HashMap<>();
     private long id = 0L;
 
@@ -22,7 +22,6 @@ public class UserRepositoryImpl implements UserRepository {
         return ++id;
     }
 
-    @Override
     public User addUser(User user) {
         if (isEmailExist(user.getEmail())) {
             throw new RuntimeException("Email уже существует");
@@ -33,7 +32,6 @@ public class UserRepositoryImpl implements UserRepository {
         return user;
     }
 
-    @Override
     public User deleteUser(Long id) {
         User user = users.get(id);
         if (user == null) {
@@ -44,7 +42,6 @@ public class UserRepositoryImpl implements UserRepository {
         return user;
     }
 
-    @Override
     public User getUserById(Long id) {
         User user = users.get(id);
         if (user == null) {
@@ -54,12 +51,10 @@ public class UserRepositoryImpl implements UserRepository {
         return user;
     }
 
-    @Override
     public List<User> getUsers() {
         return users.values().stream().toList();
     }
 
-    @Override
     public User updateUser(Long id, User updatedUser) {
         User user = users.get(id);
         if (user == null) {

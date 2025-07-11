@@ -16,7 +16,7 @@ import java.util.Map;
 @Repository
 @Slf4j
 @Data
-public class ItemRepositoryImpl implements ItemRepository {
+public class ItemRepositoryImpl {
     private UserRepository userRepository;
     private Map<Long, Item> items = new HashMap<>();
     private long id = 0L;
@@ -30,12 +30,9 @@ public class ItemRepositoryImpl implements ItemRepository {
         return ++id;
     }
 
-    @Override
     public Item addItem(Item item, Long userId) {
-        User owner = userRepository.getUserById(userId);
-        if (owner == null) {
-            throw new EntityNotFoundException("Сначала добавьте пользователя");
-        }
+        User owner = userRepository.findById(userId).orElseThrow(() ->
+                new EntityNotFoundException("Сначала добавьте пользователя"));
         item.setId(createId());
         item.setOwner(owner);
         items.put(item.getId(), item);
@@ -43,17 +40,14 @@ public class ItemRepositoryImpl implements ItemRepository {
         return item;
     }
 
-    @Override
     public Item updateItem(Item updatedItem, Long userId, Long itemId) {
         Item item = items.get(itemId);
         if (item == null) {
             throw new EntityNotFoundException("Предмет с id=" + itemId + " не найден");
         }
 
-        User user = userRepository.getUserById(userId);
-        if (user == null) {
-            throw new EntityNotFoundException("Пользователь с id=" + userId + " не найден");
-        }
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> new EntityNotFoundException("Пользователь с id=" + userId + " не найден"));
 
         if (!user.equals(item.getOwner())) {
             throw new RuntimeException("Редактировать может только владелец");
@@ -71,7 +65,6 @@ public class ItemRepositoryImpl implements ItemRepository {
         return item;
     }
 
-    @Override
     public Item getItemById(Long itemId) {
         Item item = items.get(itemId);
         if (item == null) {
@@ -80,19 +73,16 @@ public class ItemRepositoryImpl implements ItemRepository {
         return item;
     }
 
-    @Override
     public List<Item> getOwnerItems(long userId) {
-        User user = userRepository.getUserById(userId);
-        if (user == null) {
-            throw new EntityNotFoundException("Пользователь не найден");
-        }
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new EntityNotFoundException("Пользователь не найден"));
+
         return items.values()
                 .stream()
                 .filter(i -> i.getOwner().equals(user))
                 .toList();
     }
 
-    @Override
     public List<Item> search(String text) {
         String query = text.trim().toLowerCase();
         return text.isBlank()
