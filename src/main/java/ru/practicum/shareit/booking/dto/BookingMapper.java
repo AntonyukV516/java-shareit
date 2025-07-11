@@ -22,6 +22,7 @@ public class BookingMapper {
 
         Item item = booking.getItem();
         dto.setItem(ItemMapper.toItemDto(item));
+
         return dto;
     }
 
