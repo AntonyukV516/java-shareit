@@ -104,13 +104,13 @@ public class BookingService {
 
         LocalDateTime now = LocalDateTime.now();
         return switch (state.toUpperCase()) {
-            case "ALL" -> BookingMapper.ToDtoList(bookingRepository.findByBookerIdOrderByStartDesc(bookerId));
-            case "CURRENT" -> BookingMapper.ToDtoList(bookingRepository.findCurrentBookingsByBooker(bookerId, now));
-            case "PAST" -> BookingMapper.ToDtoList(bookingRepository.findPastBookingsByBooker(bookerId, now));
-            case "FUTURE" -> BookingMapper.ToDtoList(bookingRepository.findFutureBookingsByBooker(bookerId, now));
-            case "WAITING" -> BookingMapper.ToDtoList(bookingRepository.findByBookerIdAndStatusOrderByStartDesc(
+            case "ALL" -> BookingMapper.toDtoList(bookingRepository.findByBookerIdOrderByStartDesc(bookerId));
+            case "CURRENT" -> BookingMapper.toDtoList(bookingRepository.findCurrentBookingsByBooker(bookerId, now));
+            case "PAST" -> BookingMapper.toDtoList(bookingRepository.findPastBookingsByBooker(bookerId, now));
+            case "FUTURE" -> BookingMapper.toDtoList(bookingRepository.findFutureBookingsByBooker(bookerId, now));
+            case "WAITING" -> BookingMapper.toDtoList(bookingRepository.findByBookerIdAndStatusOrderByStartDesc(
                     bookerId, BookingStatus.WAITING));
-            case "REJECTED" -> BookingMapper.ToDtoList(bookingRepository.findByBookerIdAndStatusOrderByStartDesc(
+            case "REJECTED" -> BookingMapper.toDtoList(bookingRepository.findByBookerIdAndStatusOrderByStartDesc(
                     bookerId, BookingStatus.REJECTED));
             default -> throw new IllegalArgumentException("Не известный статус: " + state);
         };
@@ -122,13 +122,13 @@ public class BookingService {
         }
         LocalDateTime now = LocalDateTime.now();
         return switch (state.toUpperCase()) {
-            case "ALL" -> BookingMapper.ToDtoList(bookingRepository.findByItemOwnerIdOrderByStartDesc(ownerId));
-            case "CURRENT" -> BookingMapper.ToDtoList(bookingRepository.findCurrentBookingsByOwner(ownerId, now));
-            case "PAST" -> BookingMapper.ToDtoList(bookingRepository.findPastBookingsByOwner(ownerId, now));
-            case "FUTURE" -> BookingMapper.ToDtoList(bookingRepository.findFutureBookingsByOwner(ownerId, now));
-            case "WAITING" -> BookingMapper.ToDtoList(bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(
+            case "ALL" -> BookingMapper.toDtoList(bookingRepository.findByItemOwnerIdOrderByStartDesc(ownerId));
+            case "CURRENT" -> BookingMapper.toDtoList(bookingRepository.findCurrentBookingsByOwner(ownerId, now));
+            case "PAST" -> BookingMapper.toDtoList(bookingRepository.findPastBookingsByOwner(ownerId, now));
+            case "FUTURE" -> BookingMapper.toDtoList(bookingRepository.findFutureBookingsByOwner(ownerId, now));
+            case "WAITING" -> BookingMapper.toDtoList(bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(
                     ownerId, BookingStatus.WAITING));
-            case "REJECTED" -> BookingMapper.ToDtoList(bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(
+            case "REJECTED" -> BookingMapper.toDtoList(bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(
                     ownerId, BookingStatus.REJECTED));
             default -> throw new IllegalArgumentException("Не известный статус: " + state);
         };

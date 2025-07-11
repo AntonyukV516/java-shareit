@@ -27,7 +27,7 @@ public class BookingMapper {
     }
 
 
-    public static List<BookingResponseDto> ToDtoList(List<Booking> bookings) {
+    public static List<BookingResponseDto> toDtoList(List<Booking> bookings) {
         return bookings.stream()
                 .map(BookingMapper::toBookingResponseDto)
                 .collect(Collectors.toList());
