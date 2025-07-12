@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exeption.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
@@ -14,9 +15,11 @@ import java.util.List;
 @Service
 @Slf4j
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
 
+    @Transactional
     public UserDto addUser(UserDto userDto) {
         if (userRepository.existsByEmail(userDto.getEmail())) {
             throw new RuntimeException("Email уже используется другим пользователем");
@@ -25,6 +28,7 @@ public class UserService {
         return UserMapper.toUserDto(user);
     }
 
+    @Transactional
     public UserDto deleteUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() ->
                 new EntityNotFoundException("Пользователь не найден с id " + id));
@@ -46,6 +50,7 @@ public class UserService {
                 .toList();
     }
 
+    @Transactional
     public UserDto updateUser(Long id, UserUpdateDto updatedUser) {
         return userRepository.findById(id)
                 .map(existingUser -> {

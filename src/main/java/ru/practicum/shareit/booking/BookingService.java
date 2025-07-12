@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class BookingService {
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
@@ -55,14 +56,7 @@ public class BookingService {
             throw new IllegalArgumentException("Вещь занята в выбраные даты");
         }
 
-        Booking booking = new Booking();
-        booking.setStart(bookingDto.getStart());
-        booking.setEnd(bookingDto.getEnd());
-        booking.setItem(item);
-        booking.setBooker(booker);
-        booking.setStatus(BookingStatus.WAITING);
-
-        Booking savedBooking = bookingRepository.save(booking);
+        Booking savedBooking = bookingRepository.save(BookingMapper.toBooking(bookingDto, booker, item));
         return BookingMapper.toBookingResponseDto(savedBooking);
     }
 
