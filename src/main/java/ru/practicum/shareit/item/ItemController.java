@@ -4,10 +4,10 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.Constants;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemUpdateDto;
+import ru.practicum.shareit.item.dto.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -30,17 +30,25 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable Long itemId) {
+    public ItemResponseDto getItemById(@PathVariable Long itemId) {
         return itemService.getItemById(itemId);
     }
 
     @GetMapping
-    public List<ItemDto> getOwnerItems(@RequestHeader(Constants.SHARER_USER_ID) Long userId) {
+    public List<ItemResponseDto> getOwnerItems(@RequestHeader(Constants.SHARER_USER_ID) Long userId) {
         return itemService.getOwnerItems(userId);
     }
 
     @GetMapping("/search")
     public List<ItemDto> search(@RequestParam String text) {
         return itemService.search(text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(
+        @PathVariable Long itemId,
+        @RequestHeader(Constants.SHARER_USER_ID) Long userId,
+        @RequestBody Map<String, String> request) {
+            return itemService.addComment(itemId, userId, request.get("text"));
     }
 }
