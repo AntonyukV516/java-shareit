@@ -10,6 +10,8 @@ import ru.practicum.shareit.exeption.EntityNotFoundException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
@@ -26,17 +28,29 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
 
     @Override
     @Transactional
     public ItemDto addItem(ItemDto itemDto, Long userId) {
-        Item item = ItemMapper.toItem(itemDto);
-        User owner = userRepository.findById(userId).orElseThrow(() ->
-                new EntityNotFoundException("Пользователь не найден с id " + userId));
+        User owner = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+
+        Item item;
+        if (itemDto.getRequestId() != null) {
+            ItemRequest request = itemRequestRepository.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> new EntityNotFoundException("Запрос не найден"));
+            item = ItemMapper.toItem(itemDto, request);
+        } else {
+            item = ItemMapper.toItem(itemDto);
+        }
+
         item.setOwner(owner);
-        return ItemMapper.toItemDto(itemRepository.save(item));
+        Item savedItem = itemRepository.save(item);
+
+        return ItemMapper.toItemDto(savedItem);
     }
 
     @Override
