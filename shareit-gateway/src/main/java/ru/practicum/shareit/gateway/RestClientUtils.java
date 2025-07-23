@@ -26,7 +26,6 @@ public class RestClientUtils {
                     responseType);
             return validateResponse(response);
         } catch (HttpClientErrorException.NotFound ex) {
-            // Специальная обработка 404
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
                     ex.getResponseBodyAsString()
