@@ -139,4 +139,17 @@ class ItemControllerTest {
         assertNotNull(response);
         assertTrue(response.isEmpty());
     }
+
+    @Test
+    void updateItem_WithPartialUpdate_ShouldSucceed() {
+        ItemUpdateDto partialUpdate = new ItemUpdateDto();
+        partialUpdate.setName("New name");
+
+        when(restClient.patch(anyString(), any(), anyLong(), any(), anyLong()))
+                .thenReturn(itemDto);
+
+        ItemDto response = itemController.updateItem(partialUpdate, userId, itemId);
+        assertNotNull(response);
+    }
+
 }

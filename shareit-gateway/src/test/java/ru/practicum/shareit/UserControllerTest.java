@@ -151,4 +151,26 @@ class UserControllerTest {
         UserDto response = userController.updateUser(userId, partialUpdate);
         assertNotNull(response);
     }
+
+    @Test
+    void updateUser_ShouldHandleDifferentFieldUpdates() {
+        UserUpdateDto update = new UserUpdateDto();
+        update.setName("New Name");
+        update.setEmail("new@email.com");
+
+        when(restClient.patch(anyString(), any(), isNull(), any(), anyLong()))
+                .thenReturn(userDto);
+
+        UserDto response = userController.updateUser(userId, update);
+        assertNotNull(response);
+    }
+
+    @Test
+    void deleteUser_WhenUserNotFound_ShouldThrowException() {
+        when(restClient.delete(anyString(), isNull(), any(), anyLong()))
+                .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
+
+        assertThrows(HttpClientErrorException.class,
+                () -> userController.deleteUser(userId));
+    }
 }

@@ -34,7 +34,7 @@ public class RestClientUtils {
     }
 
 
-    private <T> HttpEntity<T> createRequestEntity(T body, Long userId) {
+    public <T> HttpEntity<T> createRequestEntity(T body, Long userId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
@@ -43,7 +43,7 @@ public class RestClientUtils {
     }
 
 
-    private <T> T validateResponse(ResponseEntity<T> response) {
+    public <T> T validateResponse(ResponseEntity<T> response) {
         if (response.getStatusCode().is2xxSuccessful()) {
             return response.getBody();
         }

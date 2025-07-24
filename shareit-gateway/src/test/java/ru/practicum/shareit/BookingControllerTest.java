@@ -5,6 +5,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import ru.practicum.shareit.gateway.RestClientUtils;
 import ru.practicum.shareit.gateway.booking.BookingController;
 import ru.practicum.shareit.gateway.booking.dto.BookingRequestDto;
@@ -12,8 +14,7 @@ import ru.practicum.shareit.gateway.booking.dto.BookingResponseDto;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -120,5 +121,26 @@ class BookingControllerTest {
 
         assertNotNull(response);
         assertEquals(1, response.size());
+    }
+
+    @Test
+    void getBooking_WhenNotFound_ShouldThrowException() {
+        when(restClient.get(anyString(), anyLong(), eq(BookingResponseDto.class), anyLong()))
+                .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
+
+        assertThrows(HttpClientErrorException.class,
+                () -> bookingController.getBooking(bookingId, userId));
+    }
+
+
+    @Test
+    void getUserBookings_WhenNoBookings_ShouldReturnEmptyList() {
+        when(restClient.get(anyString(), anyLong(), eq(BookingResponseDto[].class), anyString()))
+                .thenReturn(new BookingResponseDto[0]);
+
+        List<BookingResponseDto> response = bookingController.getUserBookings("ALL", userId);
+
+        assertNotNull(response);
+        assertTrue(response.isEmpty());
     }
 }
