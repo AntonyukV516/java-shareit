@@ -58,7 +58,7 @@ public class ItemRequestService {
         return addItemsForRequest(request);
     }
 
-    private ItemRequestDto addItemsForRequest(ItemRequest request) {
+    ItemRequestDto addItemsForRequest(ItemRequest request) {
         ItemRequestDto dto = ItemRequestMapper.toItemRequestDto(request);
         List<Item> items = itemRepository.findAllByRequestId(request.getId());
         dto.setItems(items.stream()
