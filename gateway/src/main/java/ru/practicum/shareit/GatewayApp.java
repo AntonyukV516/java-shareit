@@ -7,10 +7,7 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.context.annotation.Import;
 import ru.practicum.shareit.gateway.AppConfig;
 
-@SpringBootApplication(exclude = {
-		DataSourceAutoConfiguration.class,
-		HibernateJpaAutoConfiguration.class
-})
+@SpringBootApplication
 @Import(AppConfig.class)
 public class GatewayApp {
 	public static void main(String[] args) {
