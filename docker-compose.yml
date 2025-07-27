@@ -10,6 +10,8 @@ services:
       - server
     environment:
       - SHAREIT_SERVER_URL=http://server:9090
+      - SPRING_APPLICATION_NAME=gateway
+      - SPRING_PROFILES_ACTIVE=default
 
   server:
     build: server
@@ -20,9 +22,10 @@ services:
     depends_on:
       - db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/shareit_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit_db
       - SPRING_DATASOURCE_USERNAME=username
       - SPRING_DATASOURCE_PASSWORD=password
+      - SERVER_PORT=9090
 
   db:
     image: postgres:16.1
