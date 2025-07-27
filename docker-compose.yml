@@ -9,6 +9,8 @@ services:
       - server
     environment:
       - SHAREIT_SERVER_URL=http://server:9090
+      - SPRING_APPLICATION_NAME=gateway
+      - SPRING_PROFILES_ACTIVE=default
 
   server:
     build: server
@@ -19,19 +21,22 @@ services:
     depends_on:
       - db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit
-      - SPRING_DATASOURCE_USERNAME=shareit
-      - SPRING_DATASOURCE_PASSWORD=shareit
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit_db
+      - SPRING_DATASOURCE_USERNAME=username
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SERVER_PORT=9090
 
   db:
     image: postgres:16.1
     container_name: postgres
     ports:
       - "6541:5432"
+    volumes:
+      - ./server/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
-      - POSTGRES_PASSWORD=shareit
-      - POSTGRES_USER=shareit
-      - POSTGRES_DB=shareit
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=username
+      - POSTGRES_DB=shareit_db
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
