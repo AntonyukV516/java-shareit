@@ -33,7 +33,7 @@ public class BookingController {
                 endUtc
         );
         log.debug("Creating booking with start={}, end={}", bookingDto.getStart(), bookingDto.getEnd());
-        return bookingService.createBooking(bookingDto, userId);
+        return bookingService.createBooking(correctedDto, userId);
     }
 
     @PatchMapping("/{bookingId}")
