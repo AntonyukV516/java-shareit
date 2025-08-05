@@ -1,17 +1,22 @@
-package ru.practicum.shareit.gateway;
+package ru.practicum.shareit;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+import ru.practicum.shareit.gateway.RestClientUtils;
 
 @Configuration
-public class AppConfig {
+@Slf4j
+public class RestClientConfiguration {
 
     @Bean
     public RestTemplate restTemplate() {
-        return new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+        log.info("=== DEBUG: RestTemplate created with HttpComponentsClientHttpRequestFactory ===");
+        return new RestTemplate(factory);
     }
 
     @Bean

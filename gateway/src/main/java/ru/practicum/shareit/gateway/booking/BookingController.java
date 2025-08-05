@@ -2,12 +2,14 @@ package ru.practicum.shareit.gateway.booking;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.Constants;
 import ru.practicum.shareit.gateway.RestClientUtils;
 import ru.practicum.shareit.gateway.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.gateway.booking.dto.BookingResponseDto;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/bookings")
 @RequiredArgsConstructor
+@Slf4j
 public class BookingController {
     private final RestClientUtils restClient;
 
@@ -22,6 +25,9 @@ public class BookingController {
     public BookingResponseDto createBooking(
             @Valid @RequestBody BookingRequestDto bookingDto,
             @RequestHeader(Constants.SHARER_USER_ID) Long userId) {
+
+        log.warn("booking times: start={}, end={}", bookingDto.getStart(), bookingDto.getEnd());
+
         return restClient.post(
                 "/bookings",
                 bookingDto,

@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,6 +35,8 @@ class BookingControllerTest {
         when(bookingService.createBooking(any(BookingRequestDto.class), anyLong()))
                 .thenReturn(bookingResponseDto);
 
+        bookingRequestDto.setStart(LocalDateTime.now());
+        bookingRequestDto.setEnd(bookingRequestDto.getStart().plusSeconds(1));
         BookingResponseDto result = bookingController.createBooking(bookingRequestDto, userId);
 
         assertNotNull(result);
