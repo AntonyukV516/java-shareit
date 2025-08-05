@@ -31,8 +31,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=username
       - SPRING_DATASOURCE_PASSWORD=password
       - SERVER_PORT=9090
-      - SPRING_JACKSON_TIME_ZONE=Europe/Moscow
-      - SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_TIME_ZONE=Europe/Moscow
+      - SPRING_JACKSON_TIME_ZONE=UTC
+      - SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_TIME_ZONE=UTC
       - TZ=UTC
     networks:
       - shareit-net
@@ -48,8 +48,8 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_USER=username
       - POSTGRES_DB=shareit_db
-      - TZ=Europe/Moscow
-      - PGTZ=Europe/Moscow
+      - TZ=UTC
+      - PGTZ=UTC
     networks:
       - shareit-net
     healthcheck:

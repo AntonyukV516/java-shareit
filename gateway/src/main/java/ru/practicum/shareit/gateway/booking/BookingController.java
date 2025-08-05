@@ -9,6 +9,9 @@ import ru.practicum.shareit.gateway.RestClientUtils;
 import ru.practicum.shareit.gateway.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.gateway.booking.dto.BookingResponseDto;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,14 +28,10 @@ public class BookingController {
             @Valid @RequestBody BookingRequestDto bookingDto,
             @RequestHeader(Constants.SHARER_USER_ID) Long userId) {
 
-        log.warn("booking times: start={}, end={}", bookingDto.getStart(), bookingDto.getEnd());
+        log.info("Received booking (MSK): start={}, end={}",
+                bookingDto.getStart(), bookingDto.getEnd());
 
-        return restClient.post(
-                "/bookings",
-                bookingDto,
-                userId,
-                BookingResponseDto.class
-        );
+        return restClient.post("/bookings", bookingDto, userId, BookingResponseDto.class);
     }
 
     @PatchMapping("/{bookingId}")

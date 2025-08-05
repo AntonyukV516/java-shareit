@@ -7,7 +7,6 @@ import ru.practicum.shareit.Constants;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -24,16 +23,10 @@ public class BookingController {
             @RequestBody BookingRequestDto bookingDto,
             @RequestHeader(Constants.SHARER_USER_ID) Long userId) {
 
-        LocalDateTime startUtc = bookingDto.getStart().minusHours(3);
-        LocalDateTime endUtc = bookingDto.getEnd().minusHours(3);
+        log.debug("Creating booking with UTC times - start={}, end={}",
+                bookingDto.getStart(), bookingDto.getEnd());
 
-        BookingRequestDto correctedDto = new BookingRequestDto(
-                bookingDto.getItemId(),
-                startUtc,
-                endUtc
-        );
-        log.debug("Creating booking with start={}, end={}", bookingDto.getStart(), bookingDto.getEnd());
-        return bookingService.createBooking(correctedDto, userId);
+        return bookingService.createBooking(bookingDto, userId);
     }
 
     @PatchMapping("/{bookingId}")

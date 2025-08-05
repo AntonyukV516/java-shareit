@@ -12,6 +12,7 @@ import ru.practicum.shareit.gateway.booking.BookingController;
 import ru.practicum.shareit.gateway.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.gateway.booking.dto.BookingResponseDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,6 +38,8 @@ class BookingControllerTest {
         when(restClient.post(anyString(), any(BookingRequestDto.class), anyLong(), eq(BookingResponseDto.class)))
                 .thenReturn(bookingResponseDto);
 
+        bookingRequestDto.setStart(LocalDateTime.now());
+        bookingRequestDto.setEnd(bookingRequestDto.getStart().plusSeconds(1));
         BookingResponseDto response = bookingController.createBooking(bookingRequestDto, userId);
 
         assertNotNull(response);
