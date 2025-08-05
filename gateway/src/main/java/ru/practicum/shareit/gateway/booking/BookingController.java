@@ -9,9 +9,6 @@ import ru.practicum.shareit.gateway.RestClientUtils;
 import ru.practicum.shareit.gateway.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.gateway.booking.dto.BookingResponseDto;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 
