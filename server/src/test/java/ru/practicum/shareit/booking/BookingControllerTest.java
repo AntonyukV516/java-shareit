@@ -32,16 +32,24 @@ class BookingControllerTest {
 
     @Test
     void createBooking_ShouldReturnCreatedBooking() {
-        when(bookingService.createBooking(any(BookingRequestDto.class), anyLong()))
+        LocalDateTime now = LocalDateTime.now();
+        bookingRequestDto.setStart(now);
+        bookingRequestDto.setEnd(now.plusSeconds(1));
+
+        BookingRequestDto expectedDto = new BookingRequestDto(
+                bookingRequestDto.getItemId(),
+                bookingRequestDto.getStart().minusHours(3),
+                bookingRequestDto.getEnd().minusHours(3)
+        );
+
+        when(bookingService.createBooking(expectedDto, userId))
                 .thenReturn(bookingResponseDto);
 
-        bookingRequestDto.setStart(LocalDateTime.now());
-        bookingRequestDto.setEnd(bookingRequestDto.getStart().plusSeconds(1));
         BookingResponseDto result = bookingController.createBooking(bookingRequestDto, userId);
 
         assertNotNull(result);
         assertEquals(bookingResponseDto, result);
-        verify(bookingService).createBooking(bookingRequestDto, userId);
+        verify(bookingService).createBooking(expectedDto, userId);
     }
 
     @Test
