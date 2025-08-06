@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.exeption.EntityNotFoundException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Comment;
@@ -16,6 +18,7 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -142,15 +145,20 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public CommentDto addComment(Long itemId, Long userId, String text) {
         User author = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден с id " + userId));
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
 
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new EntityNotFoundException("Предмет не найден с id " + itemId));
+                .orElseThrow(() -> new EntityNotFoundException("Предмет не найден"));
 
-        boolean hasBookings = bookingRepository.existsByBookerIdAndItemIdAndEndBefore(
-                userId, itemId, LocalDateTime.now());
+        LocalDateTime nowInMsk = LocalDateTime.now().plusHours(3);
 
-        if (!hasBookings) {
+        List<Booking> pastBookings = bookingRepository.findPastBookingsByBooker(userId, nowInMsk);
+
+        boolean hasValidBooking = pastBookings.stream()
+                .anyMatch(b -> b.getItem().getId().equals(itemId)
+                        && b.getStatus() == BookingStatus.APPROVED);
+
+        if (!hasValidBooking) {
             throw new IllegalArgumentException("Пользователь не брал эту вещь");
         }
 
@@ -160,8 +168,6 @@ public class ItemServiceImpl implements ItemService {
         comment.setAuthor(author);
         comment.setCreated(LocalDateTime.now());
 
-        Comment savedComment = commentRepository.save(comment);
-        return CommentMapper.toCommentDto(savedComment);
+        return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
 }
-

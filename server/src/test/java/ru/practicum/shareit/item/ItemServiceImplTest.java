@@ -22,6 +22,7 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -184,10 +185,16 @@ class ItemServiceImplTest {
         Item item = new Item(itemId, "Item", "Desc", true, owner, null);
         Comment comment = new Comment(1L, "Text", item, author, now);
 
+        Booking pastBooking = new Booking();
+        pastBooking.setBooker(author);
+        pastBooking.setItem(item);
+        pastBooking.setStatus(BookingStatus.APPROVED);
+        pastBooking.setEnd(LocalDateTime.now().minusDays(1));
+
         when(userRepository.findById(userId)).thenReturn(Optional.of(author));
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(bookingRepository.existsByBookerIdAndItemIdAndEndBefore(eq(userId), eq(itemId), any(LocalDateTime.class)))
-                .thenReturn(true);
+        when(bookingRepository.findPastBookingsByBooker(eq(userId), any(LocalDateTime.class)))
+                .thenReturn(List.of(pastBooking));
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
 
         CommentDto result = itemService.addComment(itemId, userId, "Text");
@@ -211,14 +218,13 @@ class ItemServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(author));
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(bookingRepository.existsByBookerIdAndItemIdAndEndBefore(eq(userId), eq(itemId), any(LocalDateTime.class)))
-                .thenReturn(false);
+        when(bookingRepository.findPastBookingsByBooker(eq(userId), any(LocalDateTime.class)))
+                .thenReturn(Collections.emptyList());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> itemService.addComment(itemId, userId, "Text"));
 
         assertEquals("Пользователь не брал эту вещь", exception.getMessage());
-
         verify(commentRepository, never()).save(any());
     }
 }
