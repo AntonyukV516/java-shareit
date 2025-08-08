@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   gateway:
     build: gateway
@@ -10,13 +9,6 @@ services:
       - server
     environment:
       - SHAREIT_SERVER_URL=http://server:9090
-      - SPRING_APPLICATION_NAME=gateway
-      - SPRING_PROFILES_ACTIVE=default
-      - SPRING_MAIN_ALLOW-BEAN-DEFINITION-OVERRIDING=false
-      - SPRING_JACKSON_TIME_ZONE=Europe/Moscow
-      - TZ=UTC
-    networks:
-      - shareit-net
 
   server:
     build: server
@@ -27,35 +19,21 @@ services:
     depends_on:
       - db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit_db
-      - SPRING_DATASOURCE_USERNAME=username
-      - SPRING_DATASOURCE_PASSWORD=password
-      - SERVER_PORT=9090
-      - SPRING_JACKSON_TIME_ZONE=UTC
-      - SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_TIME_ZONE=UTC
-      - TZ=UTC
-    networks:
-      - shareit-net
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit
+      - SPRING_DATASOURCE_USERNAME=shareit
+      - SPRING_DATASOURCE_PASSWORD=shareit
 
   db:
     image: postgres:16.1
     container_name: postgres
     ports:
       - "6541:5432"
-    volumes:
-      - ./server/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_USER=username
-      - POSTGRES_DB=shareit_db
-      - TZ=UTC
-      - PGTZ=UTC
-    networks:
-      - shareit-net
+      - POSTGRES_PASSWORD=shareit
+      - POSTGRES_USER=shareit
+      - POSTGRES_DB=shareit
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
       interval: 5s
       retries: 10
-networks:
-  shareit-net:

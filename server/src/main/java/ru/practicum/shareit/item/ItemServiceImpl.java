@@ -148,16 +148,9 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("Предмет не найден"));
 
-        LocalDateTime nowInMsk = LocalDateTime.now().plusHours(3);
-
-        List<Booking> pastBookings = bookingRepository.findPastBookingsByBooker(userId, nowInMsk);
-
-        boolean hasValidBooking = pastBookings.stream()
-                .anyMatch(b -> b.getItem().getId().equals(itemId)
-                        && b.getStatus() == BookingStatus.APPROVED);
-
-        if (!hasValidBooking) {
-            throw new IllegalArgumentException("Пользователь не брал эту вещь");
+        if (!bookingRepository.existsByBookerIdAndItemIdAndEndBefore(userId, itemId,
+                LocalDateTime.now().plusHours(3))) {
+           throw new IllegalArgumentException("Пользователь не брал эту вещь");
         }
 
         Comment comment = new Comment();

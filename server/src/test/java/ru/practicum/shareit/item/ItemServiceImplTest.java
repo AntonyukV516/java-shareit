@@ -21,6 +21,7 @@ import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -180,21 +181,20 @@ class ItemServiceImplTest {
     @Test
     @Transactional
     void addComment_ShouldCreateComment() {
+        Long userId = 1L;
+        Long itemId = 1L;
         User author = new User(userId, "user@email.com", "User");
         User owner = new User(2L, "owner@email.com", "Owner");
         Item item = new Item(itemId, "Item", "Desc", true, owner, null);
-        Comment comment = new Comment(1L, "Text", item, author, now);
+        Comment comment = new Comment(1L, "Text", item, author, LocalDateTime.now());
 
-        Booking pastBooking = new Booking();
-        pastBooking.setBooker(author);
-        pastBooking.setItem(item);
-        pastBooking.setStatus(BookingStatus.APPROVED);
-        pastBooking.setEnd(LocalDateTime.now().minusDays(1));
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(author));
-        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(bookingRepository.findPastBookingsByBooker(eq(userId), any(LocalDateTime.class)))
-                .thenReturn(List.of(pastBooking));
+        when(userRepository.findById(eq(userId))).thenReturn(Optional.of(author));
+        when(itemRepository.findById(eq(itemId))).thenReturn(Optional.of(item));
+        when(bookingRepository.existsByBookerIdAndItemIdAndEndBefore(
+                eq(userId),
+                eq(itemId),
+                any(LocalDateTime.class)))
+                .thenReturn(true);
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
 
         CommentDto result = itemService.addComment(itemId, userId, "Text");
@@ -218,8 +218,9 @@ class ItemServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(author));
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(bookingRepository.findPastBookingsByBooker(eq(userId), any(LocalDateTime.class)))
-                .thenReturn(Collections.emptyList());
+        when(bookingRepository.existsByBookerIdAndItemIdAndEndBefore(
+                eq(userId), eq(itemId), any(LocalDateTime.class)))
+                .thenReturn(false);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> itemService.addComment(itemId, userId, "Text"));
