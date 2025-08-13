@@ -61,14 +61,11 @@ public abstract class BaseClient {
 
         try {
             return restTemplate.exchange(url, method, requestEntity, responseType);
-        }
-        catch (HttpClientErrorException e) {
+        } catch (HttpClientErrorException e) {
             throw e;
-        }
-        catch (RestClientException e) {
+        } catch (RestClientException e) {
             throw e;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException("Request failed: " + e.getMessage(), e);
         }
     }
