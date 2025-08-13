@@ -1,7 +1,7 @@
 package ru.practicum.shareit.gateway.client;
 
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -44,28 +44,14 @@ public abstract class BaseClient {
         }
     }
 
-    protected <T> ResponseEntity<T> sendRequest(String url, HttpMethod method,
-                                                Object requestBody, Class<T> responseType) {
+    protected <T> ResponseEntity<T> sendRequest(String url, HttpMethod method, Object requestBody, Class<T> responseType) {
         HttpHeaders headers = new HttpHeaders();
-
-        if (method == HttpMethod.DELETE) {
-            return executeDeleteRequest(url, responseType);
-        }
-
-        if (requestBody != null) {
-            headers.setContentType(MediaType.APPLICATION_JSON);
-        }
-
         HttpEntity<Object> requestEntity = new HttpEntity<>(requestBody, headers);
 
         try {
             return restTemplate.exchange(url, method, requestEntity, responseType);
-        } catch (HttpClientErrorException e) {
-            throw e;
         } catch (RestClientException e) {
             throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Request failed: " + e.getMessage(), e);
         }
     }
 
@@ -86,20 +72,5 @@ public abstract class BaseClient {
             headers.set(Constants.SHARER_USER_ID, String.valueOf(userId));
         }
         return headers;
-    }
-
-    private <T> ResponseEntity<T> executeDeleteRequest(String url, Class<T> responseType) {
-        return restTemplate.execute(url, HttpMethod.DELETE,
-                request -> {
-                    request.getHeaders().remove("Transfer-Encoding");
-                    request.getHeaders().remove("Content-Length");
-                    request.getHeaders().set("Connection", "close");
-                },
-                response -> {
-                    if (response.getStatusCode().is2xxSuccessful()) {
-                        return ResponseEntity.status(response.getStatusCode()).build();
-                    }
-                    throw new HttpClientErrorException(response.getStatusCode());
-                });
     }
 }

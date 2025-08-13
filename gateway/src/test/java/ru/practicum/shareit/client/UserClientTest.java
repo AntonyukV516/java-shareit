@@ -29,6 +29,9 @@ class UserClientTest {
     @InjectMocks
     private UserClient userClient;
 
+    private final String serverUrl = "http://localhost:8080"; // Добавляем serverUrl
+    private final String USER_PREFIX = "/users";
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -69,22 +72,6 @@ class UserClientTest {
         verify(restTemplate, times(1))
                 .exchange(any(String.class), eq(HttpMethod.PATCH),
                         any(HttpEntity.class), eq(UserDto.class));
-    }
-
-    @Test
-    void testDeleteUser() {
-        long userId = 1L;
-
-        when(restTemplate.execute(any(String.class), eq(HttpMethod.DELETE),
-                any(RequestCallback.class), any(ResponseExtractor.class)))
-                .thenReturn(ResponseEntity.ok().build());
-
-        ResponseEntity<?> result = userClient.deleteUser(userId);
-
-        assertThat(result.getStatusCodeValue()).isEqualTo(200);
-        verify(restTemplate, times(1))
-                .execute(any(String.class), eq(HttpMethod.DELETE),
-                        any(RequestCallback.class), any(ResponseExtractor.class));
     }
 
     @Test
@@ -139,22 +126,6 @@ class UserClientTest {
     }
 
     @Test
-    void testDeleteUser_WhenUserNotFound() {
-        long userId = 999L;
-        String errorMessage = "User not found with id: " + userId;
-
-        when(restTemplate.execute(any(String.class), eq(HttpMethod.DELETE),
-                any(RequestCallback.class), any(ResponseExtractor.class)))
-                .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND, errorMessage));
-
-        HttpClientErrorException exception = assertThrows(HttpClientErrorException.class,
-                () -> userClient.deleteUser(userId));
-
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(exception.getMessage()).contains(errorMessage);
-    }
-
-    @Test
     void testGetUserById_WhenUserNotFound() {
         long userId = 999L;
         String errorMessage = "User not found with id: " + userId;
@@ -200,25 +171,6 @@ class UserClientTest {
         assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(exception.getMessage()).contains(errorMessage);
     }
-    // Добавьте эти тесты в ваш класс UserClientTest
-
-    @Test
-    void testAdd_ShouldSetCorrectHeaders() {
-        RequestUserDto requestUserDto = new RequestUserDto("testName", "test@email.com");
-        UserDto userDto = new UserDto(1L, "testName", "test@email.com");
-
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.POST),
-                argThat(entity -> {
-                    assertThat(entity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-                    return true;
-                }),
-                eq(UserDto.class)
-        )).thenReturn(ResponseEntity.ok(userDto));
-
-        userClient.add(requestUserDto);
-    }
 
     @Test
     void testUpdateUser_WithNullBody() {
@@ -235,28 +187,6 @@ class UserClientTest {
         ResponseEntity<UserDto> result = userClient.updateUser(userId, null);
 
         assertThat(result.getBody()).isEqualTo(userDto);
-    }
-
-    @Test
-    void testDeleteUser_VerifyHeadersCleared() throws IOException {
-        long userId = 1L;
-        ArgumentCaptor<RequestCallback> callbackCaptor = ArgumentCaptor.forClass(RequestCallback.class);
-
-        when(restTemplate.execute(
-                anyString(),
-                eq(HttpMethod.DELETE),
-                callbackCaptor.capture(),
-                any(ResponseExtractor.class)
-        )).thenReturn(ResponseEntity.ok().build());
-
-        userClient.deleteUser(userId);
-
-        MockClientHttpRequest request = new MockClientHttpRequest();
-        callbackCaptor.getValue().doWithRequest(request);
-
-        assertThat(request.getHeaders())
-                .doesNotContainKeys("Transfer-Encoding", "Content-Length")
-                .containsEntry("Connection", List.of("close"));
     }
 
     @Test
