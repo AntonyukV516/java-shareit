@@ -55,17 +55,6 @@ public abstract class BaseClient {
         }
     }
 
-    protected <T> ResponseEntity<T> sendRequest(String url, HttpMethod method, Object requestBody, ParameterizedTypeReference<T> responseType) {
-        HttpHeaders headers = new HttpHeaders();
-        HttpEntity<Object> requestEntity = new HttpEntity<>(requestBody, headers);
-
-        try {
-            return restTemplate.exchange(url, method, requestEntity, responseType);
-        } catch (RestClientException e) {
-            throw e;
-        }
-    }
-
     private HttpHeaders createHeaders(Long userId) {
         HttpHeaders headers = new HttpHeaders();
         if (userId != null) {
