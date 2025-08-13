@@ -9,9 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.*;
 import ru.practicum.shareit.gateway.client.UserClient;
 import ru.practicum.shareit.gateway.dto.RequestUserDto;
 import ru.practicum.shareit.gateway.dto.UserDto;
@@ -75,15 +73,16 @@ class UserClientTest {
     void testDeleteUser() {
         long userId = 1L;
 
-        when(restTemplate.exchange(any(String.class), eq(HttpMethod.DELETE), any(HttpEntity.class), eq(Void.class)))
+        when(restTemplate.execute(any(String.class), eq(HttpMethod.DELETE),
+                any(RequestCallback.class), any(ResponseExtractor.class)))
                 .thenReturn(ResponseEntity.ok().build());
 
         ResponseEntity<?> result = userClient.deleteUser(userId);
 
         assertThat(result.getStatusCodeValue()).isEqualTo(200);
         verify(restTemplate, times(1))
-                .exchange(any(String.class), eq(HttpMethod.DELETE),
-                        any(HttpEntity.class), eq(Void.class));
+                .execute(any(String.class), eq(HttpMethod.DELETE),
+                        any(RequestCallback.class), any(ResponseExtractor.class));
     }
 
     @Test
@@ -142,8 +141,8 @@ class UserClientTest {
         long userId = 999L;
         String errorMessage = "User not found with id: " + userId;
 
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.DELETE),
-                any(HttpEntity.class), eq(Void.class)))
+        when(restTemplate.execute(any(String.class), eq(HttpMethod.DELETE),
+                any(RequestCallback.class), any(ResponseExtractor.class)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND, errorMessage));
 
         HttpClientErrorException exception = assertThrows(HttpClientErrorException.class,

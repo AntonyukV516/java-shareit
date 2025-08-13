@@ -1,7 +1,7 @@
 package ru.practicum.shareit.gateway.client;
 
-import org.springframework.http.*;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -49,11 +49,10 @@ public abstract class BaseClient {
         HttpHeaders headers = new HttpHeaders();
 
         if (method == HttpMethod.DELETE) {
-            headers.set("Connection", "close");
-            headers.remove("Transfer-Encoding");
-            headers.remove("Content-Length");
-            requestBody = null;
-        } else if (requestBody != null) {
+            return executeDeleteRequest(url, responseType);
+        }
+
+        if (requestBody != null) {
             headers.setContentType(MediaType.APPLICATION_JSON);
         }
 
@@ -87,5 +86,20 @@ public abstract class BaseClient {
             headers.set(Constants.SHARER_USER_ID, String.valueOf(userId));
         }
         return headers;
+    }
+
+    private <T> ResponseEntity<T> executeDeleteRequest(String url, Class<T> responseType) {
+        return restTemplate.execute(url, HttpMethod.DELETE,
+                request -> {
+                    request.getHeaders().remove("Transfer-Encoding");
+                    request.getHeaders().remove("Content-Length");
+                    request.getHeaders().set("Connection", "close");
+                },
+                response -> {
+                    if (response.getStatusCode().is2xxSuccessful()) {
+                        return ResponseEntity.status(response.getStatusCode()).build();
+                    }
+                    throw new HttpClientErrorException(response.getStatusCode());
+                });
     }
 }
