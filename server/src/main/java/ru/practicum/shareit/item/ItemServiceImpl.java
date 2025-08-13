@@ -148,7 +148,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new EntityNotFoundException("Предмет не найден"));
 
         if (!bookingRepository.existsByBookerIdAndItemIdAndEndBefore(userId, itemId,
-                LocalDateTime.now().plusHours(3))) {
+                LocalDateTime.now())) {
            throw new IllegalArgumentException("Пользователь не брал эту вещь");
         }
 
