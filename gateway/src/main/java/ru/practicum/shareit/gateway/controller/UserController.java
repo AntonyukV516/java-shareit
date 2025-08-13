@@ -36,6 +36,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<?> deleteUser(@PathVariable long userId) {
         log.info("Попытка удалить User с ID {}", userId);
         return userClient.deleteUser(userId);

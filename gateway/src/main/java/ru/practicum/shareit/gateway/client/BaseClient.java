@@ -49,17 +49,22 @@ public abstract class BaseClient {
         HttpHeaders headers = new HttpHeaders();
 
         if (method == HttpMethod.DELETE) {
-            headers.setContentLength(0);
+            headers.set("Connection", "close");
             headers.remove("Transfer-Encoding");
+            headers.remove("Content-Length");
+
             requestBody = null;
-        } else {
-            if (requestBody != null) {
-                headers.setContentType(MediaType.APPLICATION_JSON);
-            }
+        } else if (requestBody != null) {
+            headers.setContentType(MediaType.APPLICATION_JSON);
         }
 
         HttpEntity<Object> requestEntity = new HttpEntity<>(requestBody, headers);
-        return restTemplate.exchange(url, method, requestEntity, responseType);
+
+        try {
+            return restTemplate.exchange(url, method, requestEntity, responseType);
+        } catch (RestClientException e) {
+            throw new RuntimeException("Request failed: " + e.getMessage(), e);
+        }
     }
 
     protected <T> ResponseEntity<T> sendRequest(String url, HttpMethod method, Object requestBody, ParameterizedTypeReference<T> responseType) {
