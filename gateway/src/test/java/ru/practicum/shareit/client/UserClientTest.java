@@ -2,17 +2,19 @@ package ru.practicum.shareit.client;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.mock.http.client.MockClientHttpRequest;
 import org.springframework.web.client.*;
 import ru.practicum.shareit.gateway.client.UserClient;
 import ru.practicum.shareit.gateway.dto.RequestUserDto;
 import ru.practicum.shareit.gateway.dto.UserDto;
+
+import java.io.IOException;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -197,5 +199,110 @@ class UserClientTest {
 
         assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(exception.getMessage()).contains(errorMessage);
+    }
+    // Добавьте эти тесты в ваш класс UserClientTest
+
+    @Test
+    void testAdd_ShouldSetCorrectHeaders() {
+        RequestUserDto requestUserDto = new RequestUserDto("testName", "test@email.com");
+        UserDto userDto = new UserDto(1L, "testName", "test@email.com");
+
+        when(restTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.POST),
+                argThat(entity -> {
+                    assertThat(entity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+                    return true;
+                }),
+                eq(UserDto.class)
+        )).thenReturn(ResponseEntity.ok(userDto));
+
+        userClient.add(requestUserDto);
+    }
+
+    @Test
+    void testUpdateUser_WithNullBody() {
+        long userId = 1L;
+        UserDto userDto = new UserDto(userId, "testName", "test@email.com");
+
+        when(restTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.PATCH),
+                argThat(entity -> entity.getBody() == null),
+                eq(UserDto.class)
+        )).thenReturn(ResponseEntity.ok(userDto));
+
+        ResponseEntity<UserDto> result = userClient.updateUser(userId, null);
+
+        assertThat(result.getBody()).isEqualTo(userDto);
+    }
+
+    @Test
+    void testDeleteUser_VerifyHeadersCleared() throws IOException {
+        long userId = 1L;
+        ArgumentCaptor<RequestCallback> callbackCaptor = ArgumentCaptor.forClass(RequestCallback.class);
+
+        when(restTemplate.execute(
+                anyString(),
+                eq(HttpMethod.DELETE),
+                callbackCaptor.capture(),
+                any(ResponseExtractor.class)
+        )).thenReturn(ResponseEntity.ok().build());
+
+        userClient.deleteUser(userId);
+
+        MockClientHttpRequest request = new MockClientHttpRequest();
+        callbackCaptor.getValue().doWithRequest(request);
+
+        assertThat(request.getHeaders())
+                .doesNotContainKeys("Transfer-Encoding", "Content-Length")
+                .containsEntry("Connection", List.of("close"));
+    }
+
+    @Test
+    void testGetUserById_WithEmptyResponseBody() {
+        long userId = 1L;
+
+        when(restTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.GET),
+                any(),
+                eq(UserDto.class)
+        )).thenReturn(ResponseEntity.ok().build());
+
+        ResponseEntity<UserDto> result = userClient.getUserById(userId);
+
+        assertThat(result.getBody()).isNull();
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void testAdd_WhenServerReturnsInternalError() {
+        RequestUserDto requestUserDto = new RequestUserDto("testName", "test@email.com");
+
+        when(restTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.POST),
+                any(),
+                eq(UserDto.class)
+        )).thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        assertThrows(HttpServerErrorException.class, () -> userClient.add(requestUserDto));
+    }
+
+    @Test
+    void testUpdateUser_WhenServerUnavailable() {
+        long userId = 1L;
+        RequestUserDto requestUserDto = new RequestUserDto("testName", "test@email.com");
+
+        when(restTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.PATCH),
+                any(),
+                eq(UserDto.class)
+        )).thenThrow(new ResourceAccessException("Connection timeout"));
+
+        assertThrows(ResourceAccessException.class,
+                () -> userClient.updateUser(userId, requestUserDto));
     }
 }
