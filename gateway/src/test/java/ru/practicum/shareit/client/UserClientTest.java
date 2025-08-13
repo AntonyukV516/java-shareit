@@ -2,19 +2,14 @@ package ru.practicum.shareit.client;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.*;
-import org.springframework.mock.http.client.MockClientHttpRequest;
 import org.springframework.web.client.*;
 import ru.practicum.shareit.gateway.client.UserClient;
 import ru.practicum.shareit.gateway.dto.RequestUserDto;
 import ru.practicum.shareit.gateway.dto.UserDto;
-
-import java.io.IOException;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,9 +23,6 @@ class UserClientTest {
 
     @InjectMocks
     private UserClient userClient;
-
-    private final String serverUrl = "http://localhost:8080"; // Добавляем serverUrl
-    private final String USER_PREFIX = "/users";
 
     @BeforeEach
     void setUp() {
