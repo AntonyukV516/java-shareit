@@ -52,7 +52,6 @@ public abstract class BaseClient {
             headers.set("Connection", "close");
             headers.remove("Transfer-Encoding");
             headers.remove("Content-Length");
-
             requestBody = null;
         } else if (requestBody != null) {
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -62,7 +61,14 @@ public abstract class BaseClient {
 
         try {
             return restTemplate.exchange(url, method, requestEntity, responseType);
-        } catch (RestClientException e) {
+        }
+        catch (HttpClientErrorException e) {
+            throw e;
+        }
+        catch (RestClientException e) {
+            throw e;
+        }
+        catch (Exception e) {
             throw new RuntimeException("Request failed: " + e.getMessage(), e);
         }
     }
