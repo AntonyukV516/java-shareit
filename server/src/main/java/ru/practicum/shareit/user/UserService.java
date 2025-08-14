@@ -29,11 +29,10 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto deleteUser(Long id) {
+    public void deleteUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() ->
                 new EntityNotFoundException("Пользователь не найден с id " + id));
         userRepository.delete(user);
-        return UserMapper.toUserDto(user);
     }
 
     public UserDto getUserById(Long id) {
